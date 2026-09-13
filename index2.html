@@ -1,0 +1,345 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#123c69">
+  <meta name="description" content="Nota Solidária — leitura de QR Code de notas fiscais, organização por ONG, modo offline e acompanhamento da estimativa de arrecadação.">
+  <meta property="og:title" content="Nota Solidária">
+  <meta property="og:description" content="Seu cupom transforma vidas. Conheça uma forma simples de organizar notas fiscais e apoiar instituições.">
+  <meta property="og:image" content="assets/nota-solidaria-logo.png">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="assets/favicon.png">
+  <title>Nota Solidária — Seu cupom transforma vidas</title>
+  <style>
+    :root{
+      --navy:#123c69;
+      --navy-2:#0b2c50;
+      --ink:#15324d;
+      --muted:#66788a;
+      --orange:#ff7a1a;
+      --gold:#ffc437;
+      --mint:#2fb67d;
+      --sky:#eaf4ff;
+      --cream:#fff9ef;
+      --paper:#ffffff;
+      --line:#dfe8f0;
+      --bg:#f5f8fb;
+      --shadow:0 18px 50px rgba(18,60,105,.12);
+      --radius:28px;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth;background:var(--bg)}
+    body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;color:var(--ink);background:var(--bg);overflow-x:clip}
+    a{color:inherit;text-decoration:none}
+    button{font:inherit}
+    img{max-width:100%;display:block}
+    .wrap{width:min(1180px,calc(100% - 36px));margin-inline:auto}
+    .nav{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.88);backdrop-filter:blur(18px);border-bottom:1px solid rgba(223,232,240,.8)}
+    .nav-inner{height:72px;display:flex;align-items:center;gap:18px}
+    .brand{display:flex;align-items:center;gap:10px;font-weight:900;letter-spacing:-.02em}
+    .brand img{width:44px;height:44px;border-radius:12px;object-fit:cover}
+    .brand span{font-size:1.05rem}
+    .nav-links{margin-left:auto;display:flex;gap:22px;align-items:center;color:#496175;font-size:.92rem;font-weight:700}
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;padding:12px 17px;border-radius:14px;border:1px solid var(--line);font-weight:800;background:#fff;transition:.18s transform,.18s box-shadow,.18s background}
+    .btn:hover{transform:translateY(-1px);box-shadow:0 9px 24px rgba(18,60,105,.1)}
+    .btn.primary{background:var(--navy);color:#fff;border-color:var(--navy)}
+    .btn.warm{background:linear-gradient(135deg,var(--orange),var(--gold));color:#112f4a;border:0}
+    .hero{position:relative;padding:82px 0 68px;overflow:hidden;background:
+      radial-gradient(circle at 82% 12%,rgba(255,196,55,.28),transparent 28%),
+      radial-gradient(circle at 10% 10%,rgba(234,244,255,.95),transparent 34%),
+      linear-gradient(180deg,#fff,#f7fafe)}
+    .hero:after{content:"";position:absolute;inset:auto -15% -220px 20%;height:330px;background:linear-gradient(90deg,rgba(255,122,26,.18),rgba(255,196,55,.08));transform:rotate(-5deg);border-radius:50%}
+    .hero-grid{position:relative;z-index:2;display:grid;grid-template-columns:1.03fr .97fr;gap:58px;align-items:center}
+    .eyebrow{display:inline-flex;align-items:center;gap:8px;padding:7px 11px;border-radius:999px;background:#eef6ff;color:var(--navy);font-size:.78rem;font-weight:900;letter-spacing:.04em;text-transform:uppercase}
+    .eyebrow i{width:8px;height:8px;background:var(--mint);border-radius:50%;box-shadow:0 0 0 5px rgba(47,182,125,.13)}
+    h1{font-size:clamp(2.65rem,5vw,5.1rem);line-height:.96;letter-spacing:-.055em;margin:20px 0 20px;max-width:780px}
+    .accent{background:linear-gradient(90deg,var(--orange),#f2aa16);-webkit-background-clip:text;background-clip:text;color:transparent}
+    .hero-copy>p{font-size:clamp(1.05rem,1.6vw,1.28rem);line-height:1.6;color:#5c7083;max-width:620px;margin:0 0 28px}
+    .hero-actions{display:flex;gap:11px;flex-wrap:wrap}
+    .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:28px}
+    .chip{display:inline-flex;gap:7px;align-items:center;padding:8px 11px;border:1px solid var(--line);border-radius:999px;background:#fff;color:#4f6579;font-size:.82rem;font-weight:800}
+    .chip svg{width:16px;height:16px;color:var(--navy)}
+
+    .hero-visual{min-height:560px;position:relative;display:grid;place-items:center}
+    .glow{position:absolute;width:420px;height:420px;border-radius:50%;background:radial-gradient(circle,rgba(255,176,52,.28),rgba(255,176,52,0) 66%);filter:blur(4px)}
+    .phone{position:absolute;width:260px;height:522px;border-radius:40px;background:#071b2d;border:7px solid #102f4c;box-shadow:0 30px 70px rgba(11,44,80,.28);overflow:hidden}
+    .phone.left{transform:translate(-92px,18px) rotate(-4deg)}
+    .phone.right{transform:translate(105px,-18px) rotate(5deg);scale:.89}
+    .notch{position:absolute;top:8px;left:50%;transform:translateX(-50%);width:88px;height:22px;border-radius:999px;background:#061521;z-index:5}
+    .screen{position:absolute;inset:0;background:#f7f9fc;padding:52px 15px 18px}
+    .scan-screen{background:linear-gradient(180deg,#0c263e,#102f4c 58%,#f7f9fc 58%)}
+    .scan-top{display:flex;align-items:center;justify-content:space-between;color:#fff;font-weight:900;font-size:.82rem}
+    .mini-logo{width:34px;height:34px;border-radius:10px;object-fit:cover;background:#fff;padding:2px}
+    .camera{height:250px;margin:16px 0 18px;border-radius:22px;background:
+      linear-gradient(135deg,rgba(255,255,255,.06),rgba(255,255,255,.01)),#061521;position:relative;overflow:hidden;display:grid;place-items:center}
+    .scanbox{width:154px;height:154px;border:2px solid rgba(255,255,255,.75);border-radius:20px;position:relative}
+    .scanbox:before,.scanbox:after{content:"";position:absolute;left:15px;right:15px;height:2px;background:linear-gradient(90deg,transparent,#67f1b9,transparent);box-shadow:0 0 14px #67f1b9}
+    .scanbox:before{top:38px;animation:scan 2.2s ease-in-out infinite alternate}.scanbox:after{bottom:38px;opacity:.35}
+    @keyframes scan{to{top:112px}}
+    .qr{display:grid;grid-template-columns:repeat(7,11px);gap:3px;transform:rotate(-4deg);opacity:.92}
+    .qr i{width:11px;height:11px;background:#fff;border-radius:2px}.qr i:nth-child(3n),.qr i:nth-child(5n){opacity:.15}
+    .success{margin-top:-3px;background:#fff;border-radius:18px;padding:15px;box-shadow:0 10px 28px rgba(8,35,58,.12)}
+    .success-row{display:flex;gap:10px;align-items:center}.ok-dot{width:36px;height:36px;border-radius:12px;background:#e8f8f1;color:#148353;display:grid;place-items:center;font-weight:1000}.success strong{display:block;font-size:.88rem}.success small{color:#738395;font-size:.72rem}
+    .dash-screen{background:#f4f7fb}
+    .dash-head{display:flex;align-items:center;gap:9px;font-weight:900;font-size:.83rem;margin-bottom:16px}.dash-head img{width:34px;height:34px;border-radius:10px}
+    .metric-big{background:linear-gradient(145deg,#fff,#fff9ec);border:1px solid #efd9a5;border-radius:20px;padding:17px;box-shadow:0 8px 24px rgba(23,50,77,.07)}
+    .metric-big small{color:#798897;font-size:.66rem;text-transform:uppercase;font-weight:900;letter-spacing:.06em}.metric-big strong{display:block;color:var(--navy);font-size:1.72rem;margin-top:5px}.metric-big span{font-size:.67rem;color:#708295}
+    .mini-cards{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.mini-card{background:#fff;border:1px solid var(--line);border-radius:15px;padding:12px}.mini-card small{font-size:.62rem;color:#798897}.mini-card strong{display:block;font-size:1.02rem;margin-top:4px}.bar-chart{height:130px;background:#fff;border:1px solid var(--line);border-radius:18px;margin-top:10px;padding:12px;display:flex;align-items:end;gap:7px}.bar-chart i{flex:1;background:linear-gradient(180deg,#ffb62c,#ff7a1a);border-radius:7px 7px 3px 3px}.bar-chart i:nth-child(1){height:34%}.bar-chart i:nth-child(2){height:58%}.bar-chart i:nth-child(3){height:47%}.bar-chart i:nth-child(4){height:75%}.bar-chart i:nth-child(5){height:63%}.bar-chart i:nth-child(6){height:88%}
+    .floating-logo{position:absolute;right:4px;bottom:8px;width:120px;height:120px;border-radius:30px;object-fit:cover;box-shadow:0 24px 50px rgba(18,60,105,.24);transform:rotate(7deg);z-index:6}
+
+    section{padding:82px 0}
+    .section-headline{max-width:760px;margin:0 auto 42px;text-align:center}.section-headline h2{font-size:clamp(2rem,3.5vw,3.35rem);letter-spacing:-.04em;line-height:1.05;margin:14px 0}.section-headline p{color:var(--muted);font-size:1.05rem;line-height:1.55;margin:0 auto;max-width:650px}
+    .flow{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;position:relative}
+    .flow:before{content:"";position:absolute;left:7%;right:7%;top:72px;height:2px;background:linear-gradient(90deg,#cfe1f4,#ffd985,#cfe1f4);z-index:0}
+    .flow-card{position:relative;z-index:1;background:#fff;border:1px solid var(--line);border-radius:24px;padding:18px;text-align:center;min-height:238px;box-shadow:0 8px 28px rgba(18,60,105,.06)}
+    .step{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--navy);color:#fff;font-size:.72rem;font-weight:900;margin-bottom:10px}
+    .illus{width:100px;height:100px;margin:0 auto 14px;border-radius:30px;background:linear-gradient(145deg,#f1f7ff,#fff);display:grid;place-items:center;color:var(--navy)}
+    .illus.warm{background:linear-gradient(145deg,#fff1e8,#fff8e8);color:#e87110}.illus.green{background:linear-gradient(145deg,#e9f9f2,#f8fffb);color:#168057}
+    .illus svg{width:58px;height:58px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+    .flow-card h3{font-size:1rem;margin:0 0 7px}.flow-card p{color:var(--muted);font-size:.84rem;line-height:1.45;margin:0}
+
+    .dark{background:linear-gradient(150deg,#0b2c50,#123c69 68%,#164c7e);color:#fff;position:relative;overflow:hidden}.dark:before{content:"";position:absolute;width:420px;height:420px;border-radius:50%;background:rgba(255,180,48,.10);top:-180px;right:-110px}.dark .section-headline p{color:#bfd0df}.dark .eyebrow{background:rgba(255,255,255,.1);color:#fff}
+    .roles{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.role{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);border-radius:26px;padding:26px;min-height:260px;backdrop-filter:blur(8px)}.role-icon{width:58px;height:58px;border-radius:18px;background:rgba(255,255,255,.12);display:grid;place-items:center;margin-bottom:20px}.role-icon svg{width:32px;height:32px}.role h3{margin:0 0 12px;font-size:1.28rem}.role p{margin:0;color:#d1dce6;line-height:1.55}.role .micro{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}.role .micro span{padding:7px 9px;border-radius:999px;background:rgba(255,255,255,.1);font-size:.74rem;font-weight:800;color:#e7eef5}
+
+    .showcase-grid{display:grid;grid-template-columns:1.04fr .96fr;gap:34px;align-items:center}.mock-dashboard{background:#fff;border:1px solid var(--line);border-radius:30px;padding:20px;box-shadow:var(--shadow);position:relative}.browserbar{display:flex;align-items:center;gap:7px;padding:4px 4px 15px}.browserbar i{width:9px;height:9px;border-radius:50%;background:#d2dce6}.browserbar i:nth-child(1){background:#ff7b72}.browserbar i:nth-child(2){background:#ffc463}.browserbar i:nth-child(3){background:#54c784}.dash-layout{display:grid;grid-template-columns:116px 1fr;min-height:380px;border:1px solid var(--line);border-radius:22px;overflow:hidden}.side{background:var(--navy-2);padding:16px 10px;color:#fff}.side img{width:44px;height:44px;border-radius:12px;margin-bottom:18px}.side span{display:block;height:8px;background:rgba(255,255,255,.18);border-radius:8px;margin:11px 0}.side span:nth-child(3){width:70%}.side span:nth-child(4){width:85%}.side span:nth-child(5){width:66%}.side span:nth-child(6){width:78%}.desk{padding:20px;background:#f6f8fb}.desk-title{height:12px;width:120px;border-radius:7px;background:#193d5e;margin-bottom:14px}.desk-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.desk-metric{height:86px;border:1px solid var(--line);background:#fff;border-radius:14px;padding:10px}.desk-metric b{display:block;width:55%;height:8px;background:#d9e4ed;border-radius:5px}.desk-metric i{display:block;width:65%;height:20px;background:var(--navy);border-radius:6px;margin-top:12px}.desk-metric:first-child{background:#fff9ea;border-color:#f0d595}.desk-metric:first-child i{background:linear-gradient(90deg,var(--orange),var(--gold))}.desk-table{margin-top:12px;border:1px solid var(--line);background:#fff;border-radius:14px;padding:10px}.desk-row{display:grid;grid-template-columns:1.4fr .7fr .7fr .7fr;gap:8px;padding:9px 4px;border-bottom:1px solid #edf2f6}.desk-row:last-child{border:0}.desk-row i{height:7px;background:#dce5ed;border-radius:6px}.desk-row:first-child i{background:#c5d2de}.mobile-cards{position:absolute;right:-22px;bottom:-34px;width:188px;background:#f6f8fb;border:7px solid #12324d;border-radius:28px;padding:14px 10px;box-shadow:0 20px 45px rgba(11,44,80,.22)}.mobile-card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:10px;margin:7px 0}.mobile-card b{display:block;height:7px;width:54%;background:#173b5d;border-radius:4px;margin-bottom:7px}.mobile-card i{display:block;height:6px;width:82%;background:#dce4ec;border-radius:4px;margin-top:5px}
+    .feature-stack{display:grid;gap:13px}.feature{display:grid;grid-template-columns:56px 1fr;gap:15px;align-items:center;padding:16px;border:1px solid var(--line);background:#fff;border-radius:20px}.feature .icon{width:56px;height:56px;border-radius:17px;background:#eef6ff;color:var(--navy);display:grid;place-items:center}.feature .icon svg{width:28px;height:28px;stroke:currentColor;fill:none;stroke-width:1.8}.feature h3{font-size:1rem;margin:0 0 4px}.feature p{font-size:.87rem;color:var(--muted);line-height:1.45;margin:0}
+
+    .offline{background:var(--cream)}.offline-grid{display:grid;grid-template-columns:.9fr 1.1fr;gap:42px;align-items:center}.offline-visual{position:relative;min-height:430px;display:grid;place-items:center}.wifi{position:absolute;width:340px;height:340px;border-radius:50%;background:#fff;border:1px solid #f0dfbd;display:grid;place-items:center}.wifi svg{width:150px;height:150px;stroke:#c87517;fill:none;stroke-width:1.5}.queue-card{position:absolute;width:270px;right:10px;bottom:26px;background:#fff;border:1px solid #efdeb9;border-radius:24px;padding:18px;box-shadow:0 18px 42px rgba(126,81,20,.14)}.queue-card .head{display:flex;justify-content:space-between;align-items:center;font-weight:900;margin-bottom:12px}.queue-card .badge{font-size:.7rem;padding:5px 8px;background:#fff2ce;color:#8b5b05;border-radius:999px}.queue-row{display:flex;gap:10px;align-items:center;padding:9px 0;border-top:1px solid #f1eadb}.queue-row:first-of-type{border:0}.doc{width:32px;height:38px;border:2px solid #d69a35;border-radius:6px;position:relative}.doc:after{content:"";position:absolute;left:6px;right:6px;top:10px;height:2px;background:#d69a35;box-shadow:0 7px 0 #d69a35,0 14px 0 #d69a35}.queue-row strong{font-size:.82rem;display:block}.queue-row small{font-size:.7rem;color:#8a7d68}.offline-copy h2{font-size:clamp(2rem,3.5vw,3.4rem);letter-spacing:-.04em;line-height:1.05;margin:14px 0}.offline-copy>p{color:#6e6a62;line-height:1.6;font-size:1.04rem}.ticks{display:grid;gap:10px;margin-top:22px}.tick{display:flex;align-items:center;gap:10px;font-weight:800}.tick i{width:28px;height:28px;border-radius:9px;background:#e9f7f0;color:#138155;display:grid;place-items:center;font-style:normal}
+
+    .isolation{display:grid;grid-template-columns:1fr 1fr;gap:34px;align-items:center}.org-map{background:#fff;border:1px solid var(--line);border-radius:28px;padding:22px;box-shadow:var(--shadow)}.org-row{display:grid;grid-template-columns:1fr 52px 1fr;align-items:center;gap:10px;margin:12px 0}.org-box,.portal-box{border:1px solid var(--line);border-radius:18px;padding:14px;background:#fafcfe}.org-box{display:flex;gap:10px;align-items:center}.org-avatar{width:42px;height:42px;border-radius:13px;background:linear-gradient(135deg,#eaf4ff,#d7e8fa);display:grid;place-items:center;font-weight:1000;color:var(--navy)}.org-row:nth-child(2) .org-avatar{background:linear-gradient(135deg,#fff1e4,#ffe3c6);color:#c46009}.org-row:nth-child(3) .org-avatar{background:linear-gradient(135deg,#e8f8f0,#d3f1e2);color:#147c52}.org-box strong,.portal-box strong{font-size:.87rem}.org-box small,.portal-box small{display:block;font-size:.71rem;color:var(--muted);margin-top:3px}.connector{position:relative;height:2px;background:#cddce9}.connector:after{content:"";position:absolute;right:-1px;top:-4px;border-left:7px solid #9bb5cc;border-top:5px solid transparent;border-bottom:5px solid transparent}.portal-box{background:#f6f9fc}.lock{display:inline-grid;place-items:center;width:25px;height:25px;border-radius:8px;background:#e7f6ef;color:#138155;margin-right:7px}.isolation-copy h2{font-size:clamp(2rem,3.5vw,3.3rem);letter-spacing:-.04em;line-height:1.05;margin:14px 0}.isolation-copy p{color:var(--muted);line-height:1.6}.mini-list{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:20px}.mini-list div{padding:13px;border:1px solid var(--line);border-radius:16px;background:#fff;font-size:.83rem;font-weight:800}
+
+    .fundraising{background:#fff}.formula{display:grid;grid-template-columns:1fr 48px 1fr 48px 1fr 48px 1fr;align-items:center;gap:8px}.formula-card{border:1px solid var(--line);border-radius:24px;padding:22px;text-align:center;background:#fafcfe;min-height:190px;display:grid;place-items:center}.formula-card.orange{background:#fff7ef;border-color:#f4d2b3}.formula-card.green{background:#effaf5;border-color:#c7e8d7}.formula-card svg{width:54px;height:54px;stroke:var(--navy);fill:none;stroke-width:1.7}.formula-card.orange svg{stroke:#d86b0c}.formula-card.green svg{stroke:#168057}.formula-card strong{display:block;margin-top:12px}.formula-card small{display:block;color:var(--muted);margin-top:6px;line-height:1.4}.arrow{font-size:1.6rem;color:#9aafc2;text-align:center}.note{max-width:830px;margin:24px auto 0;padding:14px 17px;border-radius:16px;background:#f5f8fb;border:1px solid var(--line);color:#627487;font-size:.85rem;text-align:center}
+
+    .benefits{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}.benefit{border:1px solid var(--line);border-radius:24px;padding:22px;background:#fff}.benefit .num{font-size:2.1rem;font-weight:1000;letter-spacing:-.05em;color:var(--orange)}.benefit h3{font-size:1rem;margin:8px 0}.benefit p{font-size:.84rem;color:var(--muted);line-height:1.45;margin:0}
+
+    .faq{display:grid;grid-template-columns:1fr 1fr;gap:12px}.faq details{background:#fff;border:1px solid var(--line);border-radius:18px;padding:15px 17px}.faq summary{cursor:pointer;font-weight:900;list-style:none;padding-right:26px;position:relative}.faq summary::-webkit-details-marker{display:none}.faq summary:after{content:"+";position:absolute;right:0;top:-3px;font-size:1.3rem;color:#718699}.faq details[open] summary:after{content:"−"}.faq p{color:var(--muted);font-size:.9rem;line-height:1.55;margin:12px 0 2px}
+
+    .cta{padding:28px 0 88px}.cta-box{background:linear-gradient(135deg,#0b2c50,#123c69 66%,#195486);color:#fff;border-radius:34px;padding:52px;display:grid;grid-template-columns:1fr auto;gap:24px;align-items:center;overflow:hidden;position:relative}.cta-box:before{content:"";position:absolute;width:300px;height:300px;border-radius:50%;right:-70px;top:-160px;background:rgba(255,196,55,.15)}.cta-box h2{font-size:clamp(2rem,3vw,3.1rem);line-height:1.04;letter-spacing:-.04em;margin:0 0 10px}.cta-box p{margin:0;color:#cad8e4;max-width:640px;line-height:1.5}.cta-box .btn{position:relative;z-index:2;padding:14px 20px}
+    footer{padding:30px 0 42px;color:#718292;font-size:.82rem}.footer-grid{display:flex;align-items:flex-start;justify-content:space-between;gap:24px;border-top:1px solid var(--line);padding-top:26px}.footer-brand{display:flex;gap:10px;align-items:center;font-weight:900;color:var(--ink)}.footer-brand img{width:38px;height:38px;border-radius:10px}.disclaimer{max-width:720px;line-height:1.5;text-align:right}
+
+    .security-visual{background:linear-gradient(145deg,#f7fbff,#fff);border:1px solid var(--line);border-radius:28px;padding:24px;box-shadow:var(--shadow)}
+    .security-shield{display:grid;place-items:center;text-align:center;padding:18px 10px 22px}.security-shield svg{width:112px;height:112px;fill:#eaf4ff;stroke:var(--navy);stroke-width:5;stroke-linecap:round;stroke-linejoin:round;margin-bottom:12px}.security-shield strong{font-size:1.1rem}.security-shield small{display:block;color:var(--muted);margin-top:5px}.security-cards{display:grid;gap:10px}.secure-card{display:flex;gap:12px;align-items:center;padding:14px;border:1px solid var(--line);border-radius:17px;background:#fff}.secure-card>span{width:42px;height:42px;border-radius:13px;background:#eef6ff;display:grid;place-items:center;font-size:1.15rem}.secure-card strong{display:block;font-size:.87rem}.secure-card small{display:block;color:var(--muted);font-size:.72rem;margin-top:3px;line-height:1.35}
+    .reveal{opacity:0;transform:translateY(18px);transition:.55s ease}.reveal.on{opacity:1;transform:none}
+    @media(max-width:980px){
+      .nav-links a:not(.btn){display:none}.hero-grid,.showcase-grid,.offline-grid,.isolation{grid-template-columns:1fr}.hero-copy{text-align:center}.hero-copy>p{margin-inline:auto}.hero-actions,.chips{justify-content:center}.hero-visual{min-height:520px}.flow{grid-template-columns:repeat(2,1fr)}.flow:before{display:none}.flow-card:last-child{grid-column:1/-1}.roles{grid-template-columns:1fr}.showcase-grid{gap:64px}.offline-grid{gap:14px}.offline-copy{order:-1;text-align:center}.ticks{max-width:520px;margin-inline:auto}.isolation-copy{order:-1;text-align:center}.mini-list{text-align:left}.formula{grid-template-columns:1fr 34px 1fr}.formula .arrow:nth-of-type(2){display:none}.formula-card:nth-of-type(3){grid-column:1}.formula-card:nth-of-type(4){grid-column:3}.benefits{grid-template-columns:repeat(2,1fr)}.cta-box{grid-template-columns:1fr;text-align:center}.cta-box p{margin-inline:auto}.cta-box .btn{justify-self:center}.footer-grid{flex-direction:column}.disclaimer{text-align:left}}
+    @media(max-width:680px){
+      .wrap{width:min(100% - 24px,1180px)}.nav-inner{height:64px}.brand span{display:none}.nav-links{gap:8px}.nav-links .btn{padding:10px 12px;font-size:.84rem}.hero{padding:52px 0 48px}.hero-visual{min-height:430px}.phone{width:210px;height:420px;border-radius:32px}.phone.left{transform:translate(-58px,8px) rotate(-4deg)}.phone.right{transform:translate(72px,-12px) rotate(5deg);scale:.82}.screen{padding:44px 11px 14px}.camera{height:194px;margin:12px 0}.scanbox{width:120px;height:120px}.qr{grid-template-columns:repeat(7,8px);gap:2px}.qr i{width:8px;height:8px}.success{padding:10px}.floating-logo{width:86px;height:86px;border-radius:22px;right:-2px;bottom:14px}.metric-big strong{font-size:1.35rem}.bar-chart{height:100px}.flow{grid-template-columns:1fr}.flow-card:last-child{grid-column:auto}.section-headline{margin-bottom:28px}section{padding:60px 0}.dash-layout{grid-template-columns:78px 1fr;min-height:330px}.desk{padding:12px}.desk-metrics{grid-template-columns:1fr 1fr}.desk-metric:nth-child(3){display:none}.mobile-cards{right:-6px;bottom:-36px;width:155px}.offline-visual{min-height:390px}.wifi{width:270px;height:270px}.wifi svg{width:120px;height:120px}.queue-card{width:230px;right:0}.org-map{padding:14px}.org-row{grid-template-columns:1fr 26px 1fr}.org-box,.portal-box{padding:10px}.org-avatar{width:34px;height:34px}.mini-list{grid-template-columns:1fr}.formula{grid-template-columns:1fr}.arrow{transform:rotate(90deg)}.formula .arrow:nth-of-type(2){display:block}.formula-card:nth-of-type(3),.formula-card:nth-of-type(4){grid-column:auto}.benefits,.faq{grid-template-columns:1fr}.cta-box{padding:34px 22px;border-radius:26px}.footer-grid{align-items:flex-start}}
+    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.reveal{opacity:1;transform:none;transition:none}.scanbox:before{animation:none}}
+  </style>
+</head>
+<body>
+  <header class="nav">
+    <div class="wrap nav-inner">
+      <a class="brand" href="#inicio" aria-label="Nota Solidária - início">
+        <img src="assets/nota-solidaria-logo.png" alt="Logomarca Nota Solidária">
+        <span>Nota Solidária</span>
+      </a>
+      <nav class="nav-links" aria-label="Navegação principal">
+        <a href="#como-funciona">Como funciona</a>
+        <a href="#recursos">Recursos</a>
+        <a href="#seguranca">Segurança</a>
+        <a href="#duvidas">Dúvidas</a>
+        <a class="btn primary" href="#comecar">Conhecer a solução</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero" id="inicio">
+      <div class="wrap hero-grid">
+        <div class="hero-copy reveal">
+          <span class="eyebrow"><i></i> Tecnologia com impacto social</span>
+          <h1>Uma nota fiscal pode virar <span class="accent">apoio de verdade.</span></h1>
+          <p>O Nota Solidária simplifica a leitura, organização e acompanhamento das notas destinadas à sua instituição — direto do celular.</p>
+          <div class="hero-actions">
+            <a class="btn warm" href="#como-funciona">Veja em 1 minuto ↓</a>
+            <a class="btn" href="#recursos">O que a ONG ganha</a>
+          </div>
+          <div class="chips" aria-label="Principais recursos">
+            <span class="chip">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="3"/><path d="M9 18h6"/></svg> aplicativo no celular
+            </span>
+            <span class="chip">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12a8 8 0 0 1 15.5-2.8"/><path d="M20 4v6h-6"/><path d="M20 12a8 8 0 0 1-15.5 2.8"/><path d="M4 20v-6h6"/></svg> Sincronização offline
+            </span>
+            <span class="chip">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3 4 7v5c0 5 3.4 8.8 8 10 4.6-1.2 8-5 8-10V7z"/><path d="m9 12 2 2 4-4"/></svg> Acesso protegido
+            </span>
+          </div>
+        </div>
+
+        <div class="hero-visual reveal" aria-label="Ilustração do Nota Solidária no celular">
+          <div class="glow"></div>
+          <div class="phone left">
+            <div class="notch"></div>
+            <div class="screen scan-screen">
+              <div class="scan-top"><img class="mini-logo" src="assets/nota-solidaria-logo.png" alt=""><span>Leitor de notas</span></div>
+              <div class="camera">
+                <div class="scanbox">
+                  <div class="qr" aria-hidden="true">
+                    <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+                  </div>
+                </div>
+              </div>
+              <div class="success"><div class="success-row"><div class="ok-dot">✓</div><div><strong>Nota registrada</strong><small>Pronta para processamento</small></div></div></div>
+            </div>
+          </div>
+          <div class="phone right">
+            <div class="notch"></div>
+            <div class="screen dash-screen">
+              <div class="dash-head"><img src="assets/nota-solidaria-logo.png" alt=""><span>Painel da ONG</span></div>
+              <div class="metric-big"><small>Estimativa de arrecadação</small><strong>R$ 1.284,37</strong><span>Período selecionado</span></div>
+              <div class="mini-cards"><div class="mini-card"><small>Notas</small><strong>1.426</strong></div><div class="mini-card"><small>Validadas</small><strong>1.391</strong></div></div>
+              <div class="bar-chart"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+            </div>
+          </div>
+          <img class="floating-logo" src="assets/nota-solidaria-logo.png" alt="Logomarca Nota Solidária">
+        </div>
+      </div>
+    </section>
+
+    <section id="como-funciona">
+      <div class="wrap">
+        <div class="section-headline reveal">
+          <span class="eyebrow"><i></i> Como funciona</span>
+          <h2>Da leitura do QR Code ao acompanhamento da ONG.</h2>
+          <p>O fluxo foi pensado para exigir poucos toques e reduzir trabalho manual.</p>
+        </div>
+        <div class="flow">
+          <article class="flow-card reveal"><span class="step">1</span><div class="illus warm"><svg viewBox="0 0 64 64"><rect x="14" y="5" width="36" height="54" rx="7"/><path d="M25 11h14"/><rect x="22" y="22" width="20" height="20" rx="3"/><path d="M24 24h6v6h-6zM34 24h6v6h-6zM24 34h6v6h-6zM35 35h5v5h-5z"/></svg></div><h3>Leia o QR Code</h3><p>O operador aponta a câmera do celular para a nota fiscal.</p></article>
+          <article class="flow-card reveal"><span class="step">2</span><div class="illus"><svg viewBox="0 0 64 64"><path d="M20 7h20l8 8v42H20z"/><path d="M40 7v10h10M26 29h16M26 36h16M26 43h12"/><path d="M12 20v35h28"/></svg></div><h3>Registre com segurança</h3><p>A nota fica vinculada à ONG e ao operador que realizou a leitura.</p></article>
+          <article class="flow-card reveal"><span class="step">3</span><div class="illus green"><svg viewBox="0 0 64 64"><path d="M18 45h28a11 11 0 0 0 1-22 16 16 0 0 0-30 5 9 9 0 0 0 1 17z"/><path d="M23 48a12 12 0 0 0 18 3"/><path d="m38 49 4 2-2 4"/></svg></div><h3>Mesmo sem internet</h3><p>Se a conexão cair, as leituras podem aguardar no aparelho para sincronizar depois.</p></article>
+          <article class="flow-card reveal"><span class="step">4</span><div class="illus"><svg viewBox="0 0 64 64"><rect x="10" y="14" width="44" height="36" rx="7"/><path d="M10 24h44"/><circle cx="18" cy="19" r="1"/><circle cx="23" cy="19" r="1"/><path d="M24 36h16M29 42h6"/><path d="M18 35v9M46 35v9"/></svg></div><h3>Conecte ao Nota Legal</h3><p>A instituição conecta sua conta com um fluxo protegido e controlado pelo sistema.</p></article>
+          <article class="flow-card reveal"><span class="step">5</span><div class="illus warm"><svg viewBox="0 0 64 64"><path d="M10 50h44"/><path d="M15 44V31M27 44V23M39 44V14M51 44V27"/><path d="m16 19 11-7 12 5 12-9"/><path d="m50 8 2 0 0 2"/></svg></div><h3>Acompanhe o resultado</h3><p>Administração, desempenho e estimativa de arrecadação em um único painel.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="dark" id="recursos">
+      <div class="wrap">
+        <div class="section-headline reveal"><span class="eyebrow"><i></i> Cada perfil vê o que precisa</span><h2>Simples para quem lê. Completo para quem administra.</h2><p>Cada perfil recebe apenas os recursos necessários para realizar seu trabalho com clareza e segurança.</p></div>
+        <div class="roles">
+          <article class="role reveal"><div class="role-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="2" width="14" height="20" rx="3"/><path d="M8 7h3v3H8zM13 7h3v3h-3zM8 12h3v3H8zM13 12h3v3h-3z"/></svg></div><h3>Operador</h3><p>Abre o celular, lê as notas e recebe confirmação visual da captura.</p><div class="micro"><span>QR Code</span><span>Fila offline</span><span>Histórico</span></div></article>
+          <article class="role reveal"><div class="role-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/><path d="M4 8 10 2l6 7 6-5"/></svg></div><h3>Administrador da ONG</h3><p>Acompanha notas, usuários, desempenho, conexão e estimativa de arrecadação.</p><div class="micro"><span>Painel</span><span>Usuários</span><span>Desempenho</span></div></article>
+          <article class="role reveal"><div class="role-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3 4 7v5c0 5 3.4 8.8 8 10 4.6-1.2 8-5 8-10V7z"/><path d="m9 12 2 2 4-4"/></svg></div><h3>Gestão da plataforma</h3><p>Configura as instituições, identidade visual, regras do serviço e auditoria geral.</p><div class="micro"><span>Gestão central</span><span>Auditoria</span><span>Configurações</span></div></article>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="wrap showcase-grid">
+        <div class="mock-dashboard reveal" aria-label="Exemplo visual do painel responsivo">
+          <div class="browserbar"><i></i><i></i><i></i></div>
+          <div class="dash-layout"><aside class="side"><img src="assets/nota-solidaria-logo.png" alt=""><span></span><span></span><span></span><span></span><span></span></aside><div class="desk"><div class="desk-title"></div><div class="desk-metrics"><div class="desk-metric"><b></b><i></i></div><div class="desk-metric"><b></b><i></i></div><div class="desk-metric"><b></b><i></i></div></div><div class="desk-table"><div class="desk-row"><i></i><i></i><i></i><i></i></div><div class="desk-row"><i></i><i></i><i></i><i></i></div><div class="desk-row"><i></i><i></i><i></i><i></i></div><div class="desk-row"><i></i><i></i><i></i><i></i></div></div></div></div>
+          <div class="mobile-cards"><div class="mobile-card"><b></b><i></i><i></i><i></i></div><div class="mobile-card"><b></b><i></i><i></i></div></div>
+        </div>
+        <div class="feature-stack">
+          <div class="feature reveal"><div class="icon"><svg viewBox="0 0 32 32"><path d="M5 7h22v18H5z"/><path d="M5 12h22M10 17h4M10 21h8"/></svg></div><div><h3>Painel visual e responsivo</h3><p>No computador, tabelas completas. No celular, informações reorganizadas em cards — sem arrastar a tela para o lado.</p></div></div>
+          <div class="feature reveal"><div class="icon"><svg viewBox="0 0 32 32"><path d="M16 3 5 8v7c0 7 4.5 12 11 14 6.5-2 11-7 11-14V8z"/><path d="m11 16 3 3 7-7"/></svg></div><div><h3>Auditoria e rastreabilidade</h3><p>Operações importantes ficam associadas a usuário, instituição e momento da ação.</p></div></div>
+          <div class="feature reveal"><div class="icon"><svg viewBox="0 0 32 32"><path d="M4 16a12 12 0 0 1 23-4"/><path d="M27 5v7h-7"/><path d="M28 16A12 12 0 0 1 5 20"/><path d="M5 27v-7h7"/></svg></div><div><h3>Fila de sincronização</h3><p>Interrupções de internet não precisam interromper o trabalho de leitura no ponto de coleta.</p></div></div>
+          <div class="feature reveal"><div class="icon"><svg viewBox="0 0 32 32"><path d="M9 4h14v24H9z"/><path d="M13 24h6"/><path d="M12 9h8M12 13h8M12 17h5"/></svg></div><div><h3>Aplicativo sem loja</h3><p>Instale direto pelo navegador do celular, sem precisar acessar a loja de aplicativos do smartphone.</p></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="offline">
+      <div class="wrap offline-grid">
+        <div class="offline-visual reveal">
+          <div class="wifi"><svg viewBox="0 0 180 180"><path d="M27 72a91 91 0 0 1 126 0"/><path d="M49 97a59 59 0 0 1 82 0"/><path d="M71 121a28 28 0 0 1 38 0"/><circle cx="90" cy="143" r="7"/><path d="M25 27 155 157"/></svg></div>
+          <div class="queue-card"><div class="head"><span>Fila local</span><span class="badge">Sem internet</span></div><div class="queue-row"><div class="doc"></div><div><strong>Nota #1028</strong><small>Aguardando sincronização</small></div></div><div class="queue-row"><div class="doc"></div><div><strong>Nota #1029</strong><small>Aguardando sincronização</small></div></div><div class="queue-row"><div class="doc"></div><div><strong>Nota #1030</strong><small>Aguardando sincronização</small></div></div></div>
+        </div>
+        <div class="offline-copy reveal"><span class="eyebrow"><i></i> Internet caiu?</span><h2>O trabalho pode continuar.</h2><p>O modo offline foi pensado para momentos em que o celular perde conexão ou o servidor fica temporariamente inacessível. As leituras podem ficar aguardando localmente e sincronizar quando a comunicação voltar.</p><div class="ticks"><div class="tick"><i>✓</i> Menos perda de leitura em campo</div><div class="tick"><i>✓</i> Sincronização posterior</div><div class="tick"><i>✓</i> Status de conexão visível</div></div></div>
+      </div>
+    </section>
+
+    <section id="seguranca">
+      <div class="wrap isolation">
+        <div class="security-visual reveal" aria-label="Ilustração dos recursos de segurança do Nota Solidária">
+          <div class="security-shield">
+            <svg viewBox="0 0 120 120" aria-hidden="true"><path d="M60 10 101 28v28c0 27-17 46-41 54C36 102 19 83 19 56V28z"/><path d="m43 59 11 11 24-27"/></svg>
+            <strong>Ambiente protegido</strong>
+            <small>Segurança aplicada do acesso à operação</small>
+          </div>
+          <div class="security-cards">
+            <div class="secure-card"><span>🔐</span><div><strong>Acesso autenticado</strong><small>Entrada controlada por usuário e senha.</small></div></div>
+            <div class="secure-card"><span>🛡️</span><div><strong>Credenciais protegidas</strong><small>Dados sensíveis das integrações recebem tratamento seguro.</small></div></div>
+            <div class="secure-card"><span>🧾</span><div><strong>Auditoria de ações</strong><small>Operações importantes ficam registradas para acompanhamento.</small></div></div>
+          </div>
+        </div>
+        <div class="isolation-copy reveal"><span class="eyebrow"><i></i> Segurança</span><h2>Proteção em todas as etapas.</h2><p>O Nota Solidária foi desenvolvido com controles de acesso, rastreabilidade e proteção das informações utilizadas durante a operação.</p><div class="mini-list"><div>🔒 Controle de acesso</div><div>🛡️ Proteção de credenciais</div><div>👤 Perfis de usuário</div><div>📋 Registro de atividades</div></div></div>
+      </div>
+    </section>
+
+    <section class="fundraising">
+      <div class="wrap">
+        <div class="section-headline reveal"><span class="eyebrow"><i></i> Estimativa de arrecadação</span><h2>Um número útil, sem confundir com o valor da compra.</h2><p>O painel foca no que interessa à instituição: acompanhar uma estimativa baseada nos dados tributários e nas regras configuradas.</p></div>
+        <div class="formula reveal">
+          <div class="formula-card"><div><svg viewBox="0 0 64 64"><path d="M19 7h26v50l-5-4-4 4-4-4-4 4-4-4-5 4z"/><path d="M25 20h14M25 28h14M25 36h9"/></svg><strong>Nota fiscal</strong><small>Documento capturado</small></div></div>
+          <div class="arrow">→</div>
+          <div class="formula-card orange"><div><svg viewBox="0 0 64 64"><path d="M12 46h40M18 40V25M29 40V16M40 40V29M51 40V21"/><circle cx="48" cy="11" r="5"/></svg><strong>Dados tributários</strong><small>Informações usadas no cálculo</small></div></div>
+          <div class="arrow">→</div>
+          <div class="formula-card"><div><svg viewBox="0 0 64 64"><circle cx="32" cy="32" r="23"/><path d="M22 42 42 22M24 22h.1M40 42h.1"/></svg><strong>Regra aplicável</strong><small>Percentuais e critérios do programa</small></div></div>
+          <div class="arrow">→</div>
+          <div class="formula-card green"><div><svg viewBox="0 0 64 64"><path d="M14 50V30h12v20M38 50V18h12v32M8 50h48"/><path d="m18 20 12-8 10 5 10-8"/></svg><strong>Estimativa</strong><small>Visão consolidada da ONG</small></div></div>
+        </div>
+        <div class="note reveal">A estimativa não é promessa de crédito. A validação e o valor efetivamente reconhecido dependem das regras e do processamento do programa Nota Legal.</div>
+      </div>
+    </section>
+
+    <section>
+      <div class="wrap">
+        <div class="section-headline reveal"><span class="eyebrow"><i></i> Menos atrito</span><h2>Feito para transformar um processo repetitivo em um fluxo simples.</h2></div>
+        <div class="benefits">
+          <article class="benefit reveal"><div class="num">01</div><h3>Leitura rápida</h3><p>Use a câmera do smartphone para capturar o QR Code da nota.</p></article>
+          <article class="benefit reveal"><div class="num">02</div><h3>Acesso protegido</h3><p>Autenticação, controle de acesso e registros de atividade ajudam a proteger a operação da instituição.</p></article>
+          <article class="benefit reveal"><div class="num">03</div><h3>Gestão visual</h3><p>Notas, usuários, desempenho e indicadores em telas adaptadas ao celular.</p></article>
+          <article class="benefit reveal"><div class="num">04</div><h3>Continuidade</h3><p>Fila offline e sincronização ajudam a reduzir impacto de falhas de conexão.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section id="duvidas" style="background:#eef5fb">
+      <div class="wrap">
+        <div class="section-headline reveal"><span class="eyebrow"><i></i> Dúvidas rápidas</span><h2>O essencial, sem complicação.</h2></div>
+        <div class="faq">
+          <details class="reveal"><summary>Precisa instalar pela loja de aplicativos?</summary><p>Não. O aplicativo pode ser instalado diretamente pelo navegador do celular, sem precisar acessar a loja de aplicativos.</p></details>
+          <details class="reveal"><summary>E se a internet cair durante as leituras?</summary><p>O sistema foi preparado para manter leituras temporariamente no aparelho e sincronizar quando a conexão voltar, dentro das condições suportadas pelo navegador.</p></details>
+          <details class="reveal"><summary>Como o acesso ao sistema é protegido?</summary><p>O Nota Solidária utiliza autenticação, controle de acesso, auditoria de ações e proteção das credenciais usadas nas integrações.</p></details>
+          <details class="reveal"><summary>O Nota Solidária é um sistema oficial do Governo?</summary><p>Não. É uma solução independente de apoio operacional. A validação e o crédito das notas continuam sujeitos às regras e à disponibilidade do programa Nota Legal.</p></details>
+          <details class="reveal"><summary>O valor mostrado no painel é garantido?</summary><p>Não. O painel apresenta uma estimativa. O valor efetivamente reconhecido depende do processamento e das regras vigentes do Nota Legal.</p></details>
+          <details class="reveal"><summary>É possível usar a identidade visual da ONG?</summary><p>Sim. Cada instituição pode ter sua própria logo e cores aplicadas à área autenticada do sistema.</p></details>
+        </div>
+      </div>
+    </section>
+
+    <section class="cta" id="comecar">
+      <div class="wrap">
+        <div class="cta-box reveal">
+          <div><h2>Quer ver o Nota Solidária funcionando?</h2><p>Conheça o fluxo completo e veja como a sua instituição pode organizar a leitura das notas de forma mais simples.</p></div>
+          <a class="btn warm" id="contactButton" href="https://wa.me/5598988455793?text=Ol%C3%A1%2C%20gostaria%20de%20solicitar%20uma%20demonstra%C3%A7%C3%A3o%20do%20Nota%20Solid%C3%A1ria." target="_blank" rel="noopener">Solicitar demonstração ↗</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap footer-grid">
+      <div><div class="footer-brand"><img src="assets/nota-solidaria-logo.png" alt=""><span>Nota Solidária</span></div><p>Seu cupom transforma vidas.</p></div>
+      <div class="disclaimer">Solução privada e independente, sem vínculo institucional com o Governo do Maranhão ou com o programa Nota Legal. Disponibilidade, validação e créditos dependem das regras e dos serviços oficiais. <br><br>Desenvolvido por <a href="https://online.slz.br" target="_blank" rel="noopener"><strong>Deoclaydson Soares</strong></a>.</div>
+    </div>
+  </footer>
+
+  <script>
+    const CONTACT_URL = 'https://wa.me/5598988455793?text=Ol%C3%A1%2C%20gostaria%20de%20solicitar%20uma%20demonstra%C3%A7%C3%A3o%20do%20Nota%20Solid%C3%A1ria.';
+    document.getElementById('contactButton').href = CONTACT_URL;
+
+    const observer = new IntersectionObserver((entries)=>{
+      entries.forEach(entry=>{
+        if(entry.isIntersecting){entry.target.classList.add('on');observer.unobserve(entry.target)}
+      })
+    },{threshold:.12});
+    document.querySelectorAll('.reveal').forEach(el=>observer.observe(el));
+  </script>
+</body>
+</html>
